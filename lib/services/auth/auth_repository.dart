@@ -1,18 +1,23 @@
 import '../../models/auth_user.dart';
+import 'auth_result.dart';
 
 abstract class AuthRepository {
-  Future<AuthUser?> signIn({
+  Future<AuthResult<AuthUser>> login({
     required String email,
     required String password,
   });
 
-  Future<AuthUser?> register({
-    required String fullName,
+  Future<AuthResult<AuthUser>> register({
+    required String name,
     required String email,
     required String password,
   });
 
-  Future<void> signOut();
+  Future<AuthResult<void>> logout();
 
-  Future<AuthUser?> currentUser();
+  Future<AuthResult<void>> forgotPassword(String email);
+
+  Future<AuthResult<void>> sendEmailVerification();
+
+  Future<bool> isLoggedIn();
 }
