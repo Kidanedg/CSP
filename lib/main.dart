@@ -1,7 +1,28 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'app.dart';
+import 'package:provider/provider.dart';
 
-void main() {
+import 'app.dart';
+import 'firebase_options.dart';
+import 'providers/app_provider.dart';
+import 'providers/auth_provider.dart';
+import 'providers/theme_provider.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const CSPApp());
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AppProvider()),
+      ],
+      child: const CSPApp(),
+    ),
+  );
 }
