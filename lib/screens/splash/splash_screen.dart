@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../routes/app_routes.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -13,20 +12,20 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
 
   late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
+  late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
 
     _controller = AnimationController(
-      vsync: this,
       duration: const Duration(seconds: 2),
+      vsync: this,
     );
 
-    _fadeAnimation = CurvedAnimation(
+    _animation = CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeIn,
+      curve: Curves.easeInOut,
     );
 
     _controller.forward();
@@ -52,11 +51,13 @@ class _SplashScreenState extends State<SplashScreen>
 
     return Scaffold(
 
+      backgroundColor: Colors.white,
+
       body: Center(
 
         child: FadeTransition(
 
-          opacity: _fadeAnimation,
+          opacity: _animation,
 
           child: Column(
 
@@ -64,34 +65,62 @@ class _SplashScreenState extends State<SplashScreen>
 
             children: [
 
-              const Icon(
-                Icons.public,
-                size: 100,
-                color: Colors.indigo,
+              Container(
+                width: 120,
+                height: 120,
+
+                decoration: BoxDecoration(
+                  color: Colors.indigo,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+
+                child: const Icon(
+                  Icons.public,
+                  color: Colors.white,
+                  size: 70,
+                ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
 
               const Text(
                 "CSP",
                 style: TextStyle(
-                  fontSize: 40,
+                  fontSize: 42,
                   fontWeight: FontWeight.bold,
+                  color: Colors.indigo,
                 ),
               ),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
 
               const Text(
                 "Computational Social Platform",
                 style: TextStyle(
                   fontSize: 18,
+                  color: Colors.black54,
                 ),
               ),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 8),
 
-              const CircularProgressIndicator(),
+              const Text(
+                "Connect • Compute • Collaborate",
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.grey,
+                ),
+              ),
+
+              const SizedBox(height: 50),
+
+              const SizedBox(
+                width: 35,
+                height: 35,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                ),
+              ),
 
             ],
           ),
