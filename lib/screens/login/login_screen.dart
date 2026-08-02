@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/auth_provider.dart';
 import '../../routes/app_routes.dart';
+import '../../widgets/auth/auth_button.dart';
+import '../../widgets/auth/auth_text_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,153 +16,121 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
-  bool obscurePassword = true;
+  bool _rememberMe = false;
 
   @override
   void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
-  void login() {
-    if (_formKey.currentState!.validate()) {
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final auth = context.read<AuthProvider>();
+
+    final result = await auth.login(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+    );
+
+    if (!mounted) return;
+
+    if (result.isSuccess) {
       Navigator.pushReplacementNamed(
         context,
         AppRoutes.home,
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.error?.message ?? 'Login failed'),
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Login'),
+      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(24),
+            children: [
 
-          child: Form(
-            key: _formKey,
+              AuthTextField(
+                controller: _emailController,
+                label: 'Email',
+                keyboardType: TextInputType.emailAddress,
+              ),
 
-            child: Column(
-              children: [
+              const SizedBox(height: 16),
 
-                const SizedBox(height: 40),
+              AuthTextField(
+                controller: _passwordController,
+                label: 'Password',
+                obscureText: true,
+              ),
 
-                Container(
-                  width: 90,
-                  height: 90,
-                  decoration: BoxDecoration(
-                    color: Colors.indigo,
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: const Icon(
-                    Icons.public,
-                    color: Colors.white,
-                    size: 50,
-                  ),
+              const SizedBox(height: 12),
+
+              CheckboxListTile(
+                value: _rememberMe,
+                onChanged: (v) {
+                  setState(() {
+                    _rememberMe = v ?? false;
+                  });
+                },
+                title: const Text("Remember Me"),
+                controlAffinity:
+                    ListTileControlAffinity.leading,
+              ),
+
+              const SizedBox(height: 20),
+
+              AuthButton(
+                text: 'Login',
+                isLoading: auth.isLoading,
+                onPressed: _login,
+              ),
+
+              const SizedBox(height: 16),
+
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.forgotPassword,
+                  );
+                },
+                child: const Text(
+                  'Forgot Password?',
                 ),
+              ),
 
-                const SizedBox(height: 25),
-
-                const Text(
-                  "Welcome to CSP",
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.register,
+                  );
+                },
+                child: const Text(
+                  'Create Account',
                 ),
-
-                const SizedBox(height: 8),
-
-                const Text(
-                  "Computational Social Platform",
-                  style: TextStyle(
-                    color: Colors.grey,
-                  ),
-                ),
-
-                const SizedBox(height: 40),
-
-                TextFormField(
-                  controller: emailController,
-                  decoration: const InputDecoration(
-                    labelText: "Email",
-                    prefixIcon: Icon(Icons.email),
-                  ),
-                  validator: (value) =>
-                      value == null || value.isEmpty
-                          ? "Enter your email"
-                          : null,
-                ),
-
-                const SizedBox(height: 20),
-
-                TextFormField(
-                  controller: passwordController,
-                  obscureText: obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: "Password",
-                    prefixIcon: const Icon(Icons.lock),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        obscurePassword
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          obscurePassword = !obscurePassword;
-                        });
-                      },
-                    ),
-                  ),
-                  validator: (value) =>
-                      value == null || value.isEmpty
-                          ? "Enter your password"
-                          : null,
-                ),
-
-                const SizedBox(height: 30),
-
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: login,
-                    child: const Text("LOGIN"),
-                  ),
-                ),
-
-                TextButton(
-                  onPressed: () {},
-                  child: const Text("Forgot Password?"),
-                ),
-
-                const SizedBox(height: 30),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-
-                    const Text("Don't have an account?"),
-
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(
-                          context,
-                          AppRoutes.register,
-                        );
-                      },
-                      child: const Text("Register"),
-                    ),
-
-                  ],
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
