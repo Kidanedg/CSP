@@ -1,129 +1,95 @@
 import 'package:flutter/material.dart';
 
+import '../models/auth/auth_result.dart';
+import '../models/auth/auth_user.dart';
 import '../services/auth/auth_service.dart';
-import '../services/auth/auth_user.dart';
-import '../services/auth/auth_result.dart';
 
 class AuthProvider extends ChangeNotifier {
-  final AuthService _authService = AuthService();
+  final AuthService _authService = AuthService.instance;
 
-  AuthUser? _currentUser;
+  AuthUser? _user;
   bool _isLoading = false;
-  String? _errorMessage;
 
-  AuthUser? get currentUser => _currentUser;
+  AuthUser? get user => _user;
+
   bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
 
-  bool get isLoggedIn => _currentUser != null;
+  bool get isLoggedIn => _user != null;
 
-  Future<bool> login({
+  Future<AuthResult> login({
     required String email,
     required String password,
   }) async {
-    _setLoading(true);
+    _isLoading = true;
+    notifyListeners();
 
-    final AuthResult<AuthUser> result = await _authService.login(
+    final result = await _authService.login(
       email: email,
       password: password,
     );
 
-    _setLoading(false);
-
     if (result.isSuccess) {
-      _currentUser = result.data;
-      _errorMessage = null;
-      notifyListeners();
-      return true;
+      _user = result.user;
     }
 
-    _errorMessage = result.message;
+    _isLoading = false;
     notifyListeners();
-    return false;
+
+    return result;
   }
 
-  Future<bool> register({
+  Future<AuthResult> register({
     required String name,
     required String email,
     required String password,
   }) async {
-    _setLoading(true);
+    _isLoading = true;
+    notifyListeners();
 
-    final AuthResult<AuthUser> result = await _authService.register(
+    final result = await _authService.register(
       name: name,
       email: email,
       password: password,
     );
 
-    _setLoading(false);
-
     if (result.isSuccess) {
-      _currentUser = result.data;
-      _errorMessage = null;
-      notifyListeners();
-      return true;
+      _user = result.user;
     }
 
-    _errorMessage = result.message;
+    _isLoading = false;
     notifyListeners();
-    return false;
+
+    return result;
   }
 
   Future<void> logout() async {
-    _setLoading(true);
+    _isLoading = true;
+    notifyListeners();
 
     await _authService.logout();
 
-    _currentUser = null;
-    _errorMessage = null;
+    _user = null;
 
-    _setLoading(false);
+    _isLoading = false;
     notifyListeners();
   }
 
-  Future<bool> forgotPassword(String email) async {
-    _setLoading(true);
-
-    final result = await _authService.forgotPassword(email);
-
-    _setLoading(false);
-
-    if (result.isSuccess) {
-      _errorMessage = null;
-      notifyListeners();
-      return true;
-    }
-
-    _errorMessage = result.message;
-    notifyListeners();
-    return false;
+  Future<void> sendPasswordResetEmail(String email) async {
+    await _authService.sendPasswordResetEmail(email);
   }
 
-  Future<bool> sendEmailVerification() async {
-    _setLoading(true);
-
-    final result = await _authService.sendEmailVerification();
-
-    _setLoading(false);
-
-    if (result.isSuccess) {
-      _errorMessage = null;
-      notifyListeners();
-      return true;
-    }
-
-    _errorMessage = result.message;
-    notifyListeners();
-    return false;
+  Future<void> sendEmailVerification() async {
+    await _authService.sendEmailVerification();
   }
 
-  void clearError() {
-    _errorMessage = null;
+  Future<void> refreshUser() async {
+    await _authService.reloadUser();
+    _user = _authService.currentUser;
     notifyListeners();
   }
 
-  void _setLoading(bool value) {
-    _isLoading = value;
+  void loadCurrentUser() {
+    _user = _authService.currentUser;
     notifyListeners();
   }
 }
