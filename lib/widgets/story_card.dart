@@ -1,26 +1,38 @@
 import 'package:flutter/material.dart';
 
 class StoryCard extends StatelessWidget {
-  const StoryCard({super.key});
+  final String name;
+
+  const StoryCard({
+    super.key,
+    required this.name,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 90,
-      child: Card(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            SizedBox(height: 10),
-            CircleAvatar(
-              radius: 25,
-              child: Icon(Icons.person),
+    return Container(
+      width: 80,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+
+      child: Column(
+        children: [
+          const CircleAvatar(
+            radius: 30,
+            backgroundColor: Colors.indigo,
+            child: Icon(
+              Icons.person,
+              color: Colors.white,
             ),
-            SizedBox(height: 10),
-            Text("Story"),
-            SizedBox(height: 10),
-          ],
-        ),
+          ),
+
+          const SizedBox(height: 8),
+
+          Text(
+            name,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
