@@ -11,7 +11,11 @@ class CSPApp extends StatelessWidget {
     return MaterialApp(
       title: 'CSP',
       debugShowCheckedModeBanner: false,
+
+      // Themes
       theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
 
       // Initial screen
       initialRoute: AppRoutes.splash,
@@ -19,12 +23,14 @@ class CSPApp extends StatelessWidget {
       // Application routes
       routes: AppRoutes.routes,
 
-      // Future enhancements:
+      // Future enhancements
       // navigatorKey: NavigationService.navigatorKey,
-      // themeMode: ThemeMode.system,
-      // darkTheme: AppTheme.darkTheme,
+      // locale: const Locale('en'),
       // localizationsDelegates: [...],
       // supportedLocales: [...],
+      // builder: EasyLoading.init(),
+      // onGenerateRoute: AppRoutes.onGenerateRoute,
+      // onUnknownRoute: AppRoutes.unknownRoute,
     );
   }
 }
